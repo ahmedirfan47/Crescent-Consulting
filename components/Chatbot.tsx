@@ -26,6 +26,281 @@ const QUICK_SUGGESTIONS = [
   'Book a consultation',
 ];
 
+// ─── Predefined Q&A ───────────────────────────────────────────────────────────
+
+interface QAItem {
+  keywords: string[];
+  minScore: number;
+  answer: string;
+}
+
+const PREDEFINED_QA: QAItem[] = [
+  {
+    keywords: ['service', 'offer', 'provide', 'capabilities', 'what you do', 'help with'],
+    minScore: 1,
+    answer: `Crescent Consulting offers 15+ specialized services across three practice areas:
+
+Business Consulting:
+- Business Strategy Consulting (6–12 weeks)
+- Growth Strategy Development (4–8 weeks)
+- Business Process Optimization (4–8 weeks)
+- Operational Excellence Consulting (8–16 weeks)
+- Organizational Development (6–12 weeks)
+- Performance Improvement Consulting (4–10 weeks)
+
+Technology & AI:
+- AI Integration Consulting
+- AI Workflow Design
+- Business Process Automation
+- Corporate Website Development
+- Website Performance Optimization
+- Website Analytics & Reporting
+
+Operations:
+- Logistics Process Improvement
+- Systems Integration Consulting
+- Technology Consulting
+
+All engagements include hands-on implementation — not just reports. Minimum 4-week commitment.`,
+  },
+  {
+    keywords: ['hour', 'open', 'available', 'working hours', 'office hours', 'time', 'schedule'],
+    minScore: 1,
+    answer: `Our team is available Monday to Friday, 9:00 AM – 6:00 PM (PKT, UTC+5).
+
+For urgent matters, you can reach us via WhatsApp at +92 323 5663592 — we typically respond within a few hours even outside office hours.
+
+You can also email us at contactahmadirfan66@gmail.com and we will get back to you within 24 hours on business days.`,
+  },
+  {
+    keywords: ['contact', 'reach', 'email', 'phone', 'whatsapp', 'get in touch', 'talk', 'speak'],
+    minScore: 1,
+    answer: `You can reach Crescent Consulting through any of the following:
+
+📧 Email: contactahmadirfan66@gmail.com
+💬 WhatsApp: +92 323 5663592
+📍 Location: Lahore, Pakistan
+
+We respond to all inquiries within 24 hours on business days. For the fastest response, WhatsApp is recommended.`,
+  },
+  {
+    keywords: ['location', 'where', 'based', 'office', 'lahore', 'pakistan', 'address', 'city'],
+    minScore: 1,
+    answer: `Crescent Consulting is headquartered in Lahore, Pakistan.
+
+We currently serve clients across Pakistan and are actively expanding into GCC markets including Saudi Arabia, UAE, Qatar, Bahrain, Kuwait, and Oman.
+
+All engagements can be conducted remotely or on-site depending on your preference and project requirements.`,
+  },
+  {
+    keywords: ['what is crescent', 'who are you', 'about', 'company', 'firm', 'tell me about', 'crescent consulting'],
+    minScore: 1,
+    answer: `Crescent Consulting is a premium business consulting firm headquartered in Lahore, Pakistan, founded in 2024 by Ahmed Irfan.
+
+We partner with ambitious organizations across Pakistan and the GCC to build stronger businesses through strategic consulting, AI integration, and operational transformation.
+
+What makes us different:
+- We implement strategies, not just recommend them
+- AI and automation are embedded into every engagement
+- Boutique approach — fewer clients, deeper attention
+- Deep GCC market expertise
+- World-class quality at competitive rates
+
+Our mission is simple: deliver real results, not just reports.`,
+  },
+  {
+    keywords: ['book', 'consultation', 'appointment', 'schedule', 'meeting', 'start', 'get started', 'free'],
+    minScore: 1,
+    answer: `Booking a free consultation with Crescent Consulting is simple:
+
+Option 1 — Fill out the consultation form on our website (scroll to the Contact section) with your business details and goals.
+
+Option 2 — WhatsApp us directly at +92 323 5663592
+
+Option 3 — Email us at contactahmadirfan66@gmail.com
+
+After submitting:
+1. We review your request within 24 hours
+2. A senior consultant contacts you to discuss
+3. We schedule a focused discovery call
+4. You receive a tailored proposal
+
+The initial consultation is completely free with no obligation.`,
+  },
+  {
+    keywords: ['technology', 'tech', 'tools', 'stack', 'platform', 'software', 'technologies'],
+    minScore: 1,
+    answer: `Crescent Consulting works with a wide range of technologies depending on your business needs:
+
+Business Tools: ERP systems, CRM platforms, workflow automation tools, analytics dashboards, project management systems
+
+AI & Automation: Custom AI integrations, process automation, intelligent workflow design, business intelligence systems
+
+Web Technologies: Next.js, React, TypeScript, Tailwind CSS — for corporate website development projects
+
+We are technology-agnostic — we recommend and implement the best tools for your specific industry and goals, not a one-size-fits-all solution.`,
+  },
+  {
+    keywords: ['website', 'web', 'development', 'design', 'build', 'site', 'web dev'],
+    minScore: 1,
+    answer: `Yes, Crescent Consulting offers corporate website development as part of our Technology & AI practice.
+
+Our web development services include:
+- Corporate Website Development — professional, high-performance business websites
+- Website Performance Optimization — speed, SEO, and conversion improvements
+- Website Analytics & Reporting — data-driven insights and tracking
+
+We build with modern technologies (Next.js, React, TypeScript, Tailwind CSS) and focus on creating websites that drive business results — not just look good.
+
+To discuss your website project, book a free consultation or WhatsApp us at +92 323 5663592.`,
+  },
+  {
+    keywords: ['price', 'cost', 'fee', 'charge', 'rate', 'how much', 'pricing', 'expensive', 'affordable', 'budget'],
+    minScore: 1,
+    answer: `Pricing at Crescent Consulting varies depending on the scope, complexity, and duration of your engagement.
+
+We offer cost-competitive rates compared to global consulting firms — delivering world-class quality from Pakistan at a fraction of what large international firms charge.
+
+All engagements require a minimum 4-week commitment to ensure proper discovery, implementation, and results validation.
+
+To get a tailored proposal for your specific needs, book a free consultation:
+- WhatsApp: +92 323 5663592
+- Email: contactahmadirfan66@gmail.com
+
+There is no cost for the initial consultation.`,
+  },
+  {
+    keywords: ['industry', 'industries', 'sector', 'specialize', 'serve', 'work with', 'clients'],
+    minScore: 1,
+    answer: `Crescent Consulting serves clients across eight key industries in Pakistan and the GCC:
+
+1. Logistics & Transportation — route optimization, fleet management, delivery transformation
+2. Supply Chain & Distribution — end-to-end visibility, demand planning, distribution efficiency
+3. Restaurants & Cafés — kitchen operations, inventory, multi-location expansion
+4. Wholesale & Retail — inventory optimization, demand forecasting, omnichannel distribution
+5. Manufacturing — production optimization, quality systems, technology integration
+6. Warehousing & 3PL — warehouse automation, throughput optimization
+7. Family-Owned Businesses — governance, modernization, growth planning
+8. Growth-Stage Companies — scaling infrastructure, market expansion
+
+If your industry is not listed, reach out — we assess every business individually.`,
+  },
+  {
+    keywords: ['founder', 'team', 'ahmed', 'irfan', 'who runs', 'leadership', 'ceo', 'who founded', 'owner'],
+    minScore: 1,
+    answer: `Crescent Consulting was founded by Ahmed Irfan, who serves as Founder & Chief Executive Officer.
+
+Ahmed has a background in Artificial Intelligence and Business Operations, combining technical expertise with practical business understanding to bridge strategy and execution.
+
+Areas of expertise:
+- Business Strategy & Growth Planning
+- Operational Excellence
+- Artificial Intelligence & Automation
+- Digital Transformation & Systems Integration
+- Technology Consulting
+
+His vision: to help businesses across Pakistan and the GCC achieve sustainable growth through consulting that actually delivers — strategies that get implemented and results that get measured.`,
+  },
+  {
+    keywords: ['long', 'duration', 'timeline', 'weeks', 'how long', 'engagement last'],
+    minScore: 2,
+    answer: `Engagement timelines at Crescent Consulting vary by service:
+
+- Business Strategy Consulting: 6–12 weeks
+- Growth Strategy Development: 4–8 weeks
+- Business Process Optimization: 4–8 weeks
+- Operational Excellence: 8–16 weeks
+- Organizational Development: 6–12 weeks
+- Performance Improvement: 4–10 weeks
+- AI & Technology projects: varies by scope
+
+All engagements follow our 4-phase Crescent Growth Framework:
+1. Discovery & Assessment (1–2 weeks)
+2. Strategy & Planning (1–3 weeks)
+3. Implementation & Transformation (4–12 weeks)
+4. Optimization & Results (ongoing)
+
+Minimum commitment is 4 weeks across all engagements.`,
+  },
+  {
+    keywords: ['gcc', 'saudi', 'uae', 'dubai', 'qatar', 'gulf', 'bahrain', 'kuwait', 'oman', 'international'],
+    minScore: 1,
+    answer: `Yes, Crescent Consulting actively serves and is expanding across GCC markets.
+
+Current GCC expansion includes:
+- Saudi Arabia
+- United Arab Emirates (UAE)
+- Qatar
+- Bahrain
+- Kuwait
+- Oman
+
+We have deep understanding of GCC business culture, regulatory environments, and market opportunities. Engagements can be conducted remotely or with on-site presence depending on your requirements.
+
+To discuss a GCC engagement, contact us:
+- WhatsApp: +92 323 5663592
+- Email: contactahmadirfan66@gmail.com`,
+  },
+  {
+    keywords: ['ai', 'artificial intelligence', 'automation', 'machine learning', 'automate'],
+    minScore: 1,
+    answer: `AI and automation are core to what Crescent Consulting does — embedded into every engagement, not just offered as a standalone service.
+
+Our dedicated AI services include:
+- AI Integration Consulting — identifying and implementing AI applications with measurable ROI
+- AI Workflow Design — custom workflow automation using AI tools
+- Business Process Automation — replacing repetitive tasks with intelligent systems
+
+AI improves businesses in three primary ways:
+1. Automation — replacing repetitive tasks with intelligent systems
+2. Analytics — uncovering patterns and insights from operational data
+3. Optimization — enabling faster, more accurate business decisions
+
+We implement practical, real-world AI solutions — not theoretical concepts.`,
+  },
+  {
+    keywords: ['methodology', 'process', 'framework', 'approach', 'how work', 'method', 'work together'],
+    minScore: 1,
+    answer: `Crescent Consulting uses the Crescent Growth Framework™ — a structured 4-phase methodology:
+
+Phase 1 — Discovery & Assessment (1–2 weeks)
+Stakeholder interviews, business assessment, process evaluation, and opportunity identification.
+
+Phase 2 — Strategy & Planning (1–3 weeks)
+Root cause analysis, strategic recommendations, KPI development, and roadmap creation.
+
+Phase 3 — Implementation & Transformation (4–12 weeks)
+Solution design, process optimization, technology implementation, and change management.
+
+Phase 4 — Optimization & Results (ongoing)
+KPI monitoring, performance measurement, continuous optimization, and executive reporting.
+
+Every engagement ends with verified, measurable outcomes visible on your balance sheet.`,
+  },
+];
+
+function findPredefinedAnswer(userInput: string): string | null {
+  const normalized = userInput
+    .toLowerCase()
+    .replace(/[^a-z0-9\s]/g, '')
+    .trim();
+
+  let bestAnswer: string | null = null;
+  let bestScore = 0;
+
+  for (const qa of PREDEFINED_QA) {
+    const score = qa.keywords.filter((kw) => normalized.includes(kw)).length;
+    if (score >= qa.minScore && score > bestScore) {
+      bestScore = score;
+      bestAnswer = qa.answer;
+    }
+  }
+
+  return bestAnswer;
+}
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
 function generateId(): string {
   return `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
 }
@@ -91,8 +366,8 @@ function MessageBubble({
       >
         {isUser ? (
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
-            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" stroke="#A08050" strokeWidth="2" strokeLinecap="round"/>
-            <circle cx="12" cy="7" r="4" stroke="#A08050" strokeWidth="2"/>
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" stroke="#A08050" strokeWidth="2" strokeLinecap="round" />
+            <circle cx="12" cy="7" r="4" stroke="#A08050" strokeWidth="2" />
           </svg>
         ) : (
           <Sparkles size={13} color="#fff" />
@@ -143,6 +418,8 @@ function MessageBubble({
     </motion.div>
   );
 }
+
+// ─── Main Component ───────────────────────────────────────────────────────────
 
 export default function ChatBot() {
   const [isOpen, setIsOpen] = useState(false);
@@ -196,6 +473,25 @@ export default function ChatBot() {
 
       const assistantId = generateId();
 
+      // ── Check predefined answers first ──────────────────────────────
+      const predefinedAnswer = findPredefinedAnswer(text);
+
+      if (predefinedAnswer) {
+        setIsLoading(false);
+        setMessages((prev) => [
+          ...prev,
+          {
+            id: assistantId,
+            role: 'assistant',
+            content: predefinedAnswer,
+            timestamp: new Date(),
+          },
+        ]);
+        if (!isOpen) setHasUnread(true);
+        return;
+      }
+
+      // ── No predefined match — send to OpenAI ────────────────────────
       try {
         const history = [...messages, userMessage]
           .filter((m) => m.id !== 'welcome')
@@ -346,7 +642,6 @@ export default function ChatBot() {
                     }}
                   />
                 </div>
-
                 <div>
                   <p style={{ margin: 0, fontSize: 14, fontWeight: 600, color: '#0F0F0F', letterSpacing: '-0.01em' }}>
                     Crescent AI
@@ -639,7 +934,7 @@ export default function ChatBot() {
         )}
       </AnimatePresence>
 
-      {/* Floating Button */}
+      {/* ── Floating Button ────────────────────────────────────────────── */}
       <div style={{ position: 'fixed', bottom: 24, right: 24, zIndex: 9999 }}>
         <AnimatePresence>
           {!isOpen && (
