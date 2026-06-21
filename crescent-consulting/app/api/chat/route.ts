@@ -1,9 +1,14 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { SYSTEM_PROMPT } from '@/lib/knowledgeBase'
 import { checkRateLimit } from '@/lib/rateLimit'
+import { containsEscalationIntent } from '@/lib/escalation'
+import { parseDirectives } from '@/lib/chatDirectives'
+import { hashString } from '@/lib/crypto'
+import { getChatLog, upsertChatLog } from '@/lib/supabase'
 
 const MAX_MESSAGE_LENGTH = 1000
 const MAX_MESSAGES = 20
+const MAX_STORED_MESSAGES = 200
 
 interface IncomingMessage {
   role?: string
@@ -12,26 +17,27 @@ interface IncomingMessage {
 
 export async function POST(req: NextRequest) {
   try {
-    // ── Basic CSRF mitigation: reject cross-origin requests when an Origin header is present ──
     const origin = req.headers.get('origin')
     const host = req.headers.get('host') || ''
     if (origin && !origin.includes(host)) {
       return NextResponse.json({ error: 'Invalid request origin.' }, { status: 403 })
     }
 
-    // ── Rate limiting by IP ──
     const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() || 'unknown'
     const { allowed } = checkRateLimit(ip)
     if (!allowed) {
       return NextResponse.json(
-        { error: 'Too many messages. Please wait a few minutes or contact us on WhatsApp.' },
+        { error: 'Too many messages. Please wait a few minutes and try again.' },
         { status: 429 }
       )
     }
 
-    // ── Parse and validate body ──
     const body = await req.json().catch(() => null)
     const incoming = body?.messages as IncomingMessage[] | undefined
+    const conversationId: string | undefined =
+      typeof body?.conversationId === 'string' && body.conversationId.length <= 100
+        ? body.conversationId
+        : undefined
 
     if (!Array.isArray(incoming) || incoming.length === 0) {
       return NextResponse.json({ error: 'Invalid request format.' }, { status: 400 })
@@ -39,12 +45,11 @@ export async function POST(req: NextRequest) {
 
     if (incoming.length > MAX_MESSAGES) {
       return NextResponse.json(
-        { error: 'This conversation has gotten long. Please start a new chat or contact us on WhatsApp.' },
+        { error: 'This conversation has gotten long. Please start a new chat.' },
         { status: 400 }
       )
     }
 
-    // ── Sanitize: strict allow-list of roles, strip control characters, cap length ──
     const sanitized = incoming
       .filter(
         (m): m is { role: 'user' | 'assistant'; content: string } =>
@@ -66,16 +71,14 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Invalid message content.' }, { status: 400 })
     }
 
-    // ── Ensure the API key is configured ──
     if (!process.env.OPENAI_API_KEY) {
       console.error('OPENAI_API_KEY is not set.')
       return NextResponse.json(
-        { error: 'Chat is temporarily unavailable. Please reach us on WhatsApp.' },
+        { error: 'Chat is temporarily unavailable. Please try again shortly.' },
         { status: 500 }
       )
     }
 
-    // ── Call the LLM ──
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -94,27 +97,70 @@ export async function POST(req: NextRequest) {
       const errText = await response.text()
       console.error('OpenAI API error:', response.status, errText)
       return NextResponse.json(
-        { error: 'Our AI assistant is having trouble responding. Please try again or contact us on WhatsApp.' },
+        { error: 'Our assistant is having trouble responding. Please try again.' },
         { status: 502 }
       )
     }
 
     const data = await response.json()
-    const reply: string | undefined = data?.choices?.[0]?.message?.content?.trim()
+    const rawReply: string | undefined = data?.choices?.[0]?.message?.content?.trim()
 
-    if (!reply) {
-      return NextResponse.json(
-        { error: 'No response generated. Please try again.' },
-        { status: 502 }
-      )
+    if (!rawReply) {
+      return NextResponse.json({ error: 'No response generated. Please try again.' }, { status: 502 })
     }
 
-    return NextResponse.json({ reply })
+    const { cleanText, offerLeadForm, suggestedSections } = parseDirectives(rawReply)
+
+    if (conversationId) {
+      logConversationTurn({
+        conversationId,
+        latestUserMessage: sanitized[sanitized.length - 1],
+        assistantReply: cleanText,
+        offerLeadForm,
+        ip,
+      }).catch((e) => console.error('Chat log turn failed:', e))
+    }
+
+    return NextResponse.json({ reply: cleanText, offerLeadForm, suggestedSections })
   } catch (error) {
     console.error('Chat API unexpected error:', error)
-    return NextResponse.json(
-      { error: 'Something went wrong. Please try again or contact us on WhatsApp.' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Something went wrong. Please try again.' }, { status: 500 })
   }
+}
+
+/**
+ * Appends exactly one new user/assistant turn to the conversation's stored
+ * history. Always fetches the existing record first and appends — never
+ * overwrites — because Supabase's upsert (merge-duplicates) replaces the
+ * entire `messages` column on conflict rather than deep-merging it.
+ */
+async function logConversationTurn(params: {
+  conversationId: string
+  latestUserMessage: { role: 'user' | 'assistant'; content: string }
+  assistantReply: string
+  offerLeadForm: boolean
+  ip: string
+}) {
+  const { conversationId, latestUserMessage, assistantReply, offerLeadForm, ip } = params
+
+  const existing = await getChatLog(conversationId)
+  const priorMessages = existing?.messages ?? []
+
+  const mergedMessages = [
+    ...priorMessages,
+    latestUserMessage,
+    { role: 'assistant' as const, content: assistantReply },
+  ].slice(-MAX_STORED_MESSAGES)
+
+  const escalated =
+    Boolean(existing?.escalated) || offerLeadForm || containsEscalationIntent(latestUserMessage.content)
+
+  const ipHash = await hashString(ip)
+
+  await upsertChatLog({
+    conversation_id: conversationId,
+    messages: mergedMessages,
+    escalated,
+    ip_hash: ipHash,
+  })
 }

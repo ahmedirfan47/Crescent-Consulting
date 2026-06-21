@@ -238,7 +238,7 @@ export default function Founder() {
               <div style={{ fontSize: '14px', color: '#3D4D45', lineHeight: 1.7 }}>
                 To help businesses across Pakistan and the GCC achieve sustainable growth
                 through strategic consulting, AI integration, and operational excellence —
-                delivering real results, not just recommendations.
+                delivering real results.
               </div>
             </div>
           </motion.div>
