@@ -2,17 +2,7 @@
 
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import {
-  MessageCircle,
-  X,
-  Send,
-  Loader2,
-  RotateCcw,
-  Sparkles,
-  User,
-} from 'lucide-react';
-
-// ─── Types ────────────────────────────────────────────────────────────────────
+import { MessageCircle, X, Send, Loader2, Sparkles, RotateCcw } from 'lucide-react';
 
 interface Message {
   id: string;
@@ -20,8 +10,6 @@ interface Message {
   content: string;
   timestamp: Date;
 }
-
-// ─── Constants ────────────────────────────────────────────────────────────────
 
 const WELCOME_MESSAGE: Message = {
   id: 'welcome',
@@ -34,7 +22,7 @@ const WELCOME_MESSAGE: Message = {
 const QUICK_SUGGESTIONS = [
   'What services do you offer?',
   'Which industries do you serve?',
-  'How long does an engagement take?',
+  'How long does an engagement?',
   'Book a consultation',
 ];
 
@@ -42,30 +30,26 @@ function generateId(): string {
   return `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
 }
 
-// ─── Typing Indicator ─────────────────────────────────────────────────────────
-
-function TypingIndicator() {
+function TypingDots() {
   return (
-    <div className="flex items-center gap-1.5 h-5">
+    <div style={{ display: 'flex', alignItems: 'center', gap: '5px', padding: '2px 0' }}>
       {[0, 1, 2].map((i) => (
         <motion.span
           key={i}
-          className="w-1.5 h-1.5 rounded-full"
-          style={{ background: 'rgba(201,168,76,0.6)' }}
-          animate={{ y: [0, -5, 0], opacity: [0.5, 1, 0.5] }}
-          transition={{
-            duration: 0.9,
-            repeat: Infinity,
-            delay: i * 0.18,
-            ease: 'easeInOut',
+          style={{
+            width: 7,
+            height: 7,
+            borderRadius: '50%',
+            background: '#C9A84C',
+            display: 'block',
           }}
+          animate={{ y: [0, -5, 0], opacity: [0.4, 1, 0.4] }}
+          transition={{ duration: 0.8, repeat: Infinity, delay: i * 0.16, ease: 'easeInOut' }}
         />
       ))}
     </div>
   );
 }
-
-// ─── Message Bubble ───────────────────────────────────────────────────────────
 
 function MessageBubble({
   message,
@@ -78,64 +62,79 @@ function MessageBubble({
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 12, scale: 0.97 }}
+      initial={{ opacity: 0, y: 10, scale: 0.98 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
-      transition={{ duration: 0.22, ease: [0.25, 0.46, 0.45, 0.94] }}
-      className={`flex gap-2.5 ${isUser ? 'flex-row-reverse' : 'flex-row'}`}
+      transition={{ duration: 0.2, ease: [0.25, 0.46, 0.45, 0.94] }}
+      style={{
+        display: 'flex',
+        flexDirection: isUser ? 'row-reverse' : 'row',
+        alignItems: 'flex-end',
+        gap: 10,
+        marginBottom: 4,
+      }}
     >
       {/* Avatar */}
       <div
-        className="flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center self-end mb-0.5"
-        style={
-          isUser
-            ? {
-                background: 'rgba(255,255,255,0.06)',
-                border: '1px solid rgba(255,255,255,0.1)',
-              }
-            : {
-                background: 'linear-gradient(135deg, #C9A84C 0%, #F5D78E 100%)',
-                boxShadow: '0 2px 10px rgba(201,168,76,0.3)',
-              }
-        }
+        style={{
+          flexShrink: 0,
+          width: 30,
+          height: 30,
+          borderRadius: '50%',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          background: isUser
+            ? '#F0EBE0'
+            : 'linear-gradient(135deg, #C9A84C 0%, #E8C56A 100%)',
+          boxShadow: isUser ? 'none' : '0 3px 12px rgba(201,168,76,0.35)',
+        }}
       >
         {isUser ? (
-          <User size={12} className="text-white/50" />
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" stroke="#A08050" strokeWidth="2" strokeLinecap="round"/>
+            <circle cx="12" cy="7" r="4" stroke="#A08050" strokeWidth="2"/>
+          </svg>
         ) : (
-          <Sparkles size={11} className="text-black" />
+          <Sparkles size={13} color="#fff" />
         )}
       </div>
 
       {/* Bubble */}
       <div
-        className={`relative max-w-[78%] rounded-2xl px-4 py-3 text-sm leading-relaxed ${
-          isUser ? 'rounded-br-sm' : 'rounded-bl-sm'
-        }`}
-        style={
-          isUser
-            ? {
-                background: 'rgba(255,255,255,0.07)',
-                border: '1px solid rgba(255,255,255,0.09)',
-                color: 'rgba(255,255,255,0.88)',
-              }
-            : {
-                background:
-                  'linear-gradient(135deg, rgba(201,168,76,0.09) 0%, rgba(245,215,142,0.05) 100%)',
-                border: '1px solid rgba(201,168,76,0.15)',
-                color: 'rgba(255,255,255,0.84)',
-              }
-        }
+        style={{
+          maxWidth: '76%',
+          padding: isUser ? '10px 15px' : '12px 16px',
+          borderRadius: isUser ? '18px 4px 18px 18px' : '4px 18px 18px 18px',
+          fontSize: 14,
+          lineHeight: 1.6,
+          background: isUser
+            ? 'linear-gradient(135deg, #C9A84C 0%, #D4A543 100%)'
+            : '#FFFFFF',
+          color: isUser ? '#FFFFFF' : '#1A1A1A',
+          boxShadow: isUser
+            ? '0 4px 16px rgba(201,168,76,0.3)'
+            : '0 2px 12px rgba(0,0,0,0.07)',
+          border: isUser ? 'none' : '1px solid #F0EDE6',
+        }}
       >
         {!message.content ? (
-          <TypingIndicator />
+          <TypingDots />
         ) : (
           <>
-            <span className="whitespace-pre-wrap">{message.content}</span>
+            <span style={{ whiteSpace: 'pre-wrap' }}>{message.content}</span>
             {isStreaming && (
               <motion.span
-                className="inline-block w-[2px] h-[14px] ml-0.5 align-middle rounded-full"
-                style={{ background: 'rgba(201,168,76,0.7)' }}
-                animate={{ opacity: [1, 0] }}
-                transition={{ duration: 0.5, repeat: Infinity }}
+                style={{
+                  display: 'inline-block',
+                  width: 2,
+                  height: 14,
+                  background: '#C9A84C',
+                  borderRadius: 2,
+                  marginLeft: 2,
+                  verticalAlign: 'middle',
+                }}
+                animate={{ opacity: [1, 0, 1] }}
+                transition={{ duration: 0.7, repeat: Infinity }}
               />
             )}
           </>
@@ -144,8 +143,6 @@ function MessageBubble({
     </motion.div>
   );
 }
-
-// ─── Main Component ───────────────────────────────────────────────────────────
 
 export default function ChatBot() {
   const [isOpen, setIsOpen] = useState(false);
@@ -164,21 +161,19 @@ export default function ChatBot() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, []);
 
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages, scrollToBottom]);
+  useEffect(() => { scrollToBottom(); }, [messages, scrollToBottom]);
 
   useEffect(() => {
     if (isOpen) {
       setHasUnread(false);
-      setTimeout(() => inputRef.current?.focus(), 400);
+      setTimeout(() => inputRef.current?.focus(), 380);
     }
   }, [isOpen]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setInput(e.target.value);
     e.target.style.height = 'auto';
-    e.target.style.height = `${Math.min(e.target.scrollHeight, 120)}px`;
+    e.target.style.height = `${Math.min(e.target.scrollHeight, 110)}px`;
   };
 
   const sendMessage = useCallback(
@@ -219,19 +214,14 @@ export default function ChatBot() {
 
         setMessages((prev) => [
           ...prev,
-          {
-            id: assistantId,
-            role: 'assistant',
-            content: '',
-            timestamp: new Date(),
-          },
+          { id: assistantId, role: 'assistant', content: '', timestamp: new Date() },
         ]);
         setIsLoading(false);
         setStreamingId(assistantId);
 
         const reader = response.body?.getReader();
         const decoder = new TextDecoder();
-        if (!reader) throw new Error('No readable stream available');
+        if (!reader) throw new Error('No readable stream');
 
         while (true) {
           const { done, value } = await reader.read();
@@ -246,11 +236,8 @@ export default function ChatBot() {
 
         if (!isOpen) setHasUnread(true);
       } catch (err: unknown) {
-        const errorMessage =
-          err instanceof Error
-            ? err.message
-            : 'Something went wrong. Please try again.';
-        setError(errorMessage);
+        const msg = err instanceof Error ? err.message : 'Something went wrong. Please try again.';
+        setError(msg);
         setMessages((prev) => prev.filter((m) => m.id !== assistantId));
       } finally {
         setIsLoading(false);
@@ -274,148 +261,204 @@ export default function ChatBot() {
   };
 
   const isBusy = isLoading || !!streamingId;
+  const canSend = input.trim().length > 0 && !isBusy;
   const showSuggestions = messages.length === 1 && !isBusy;
-  const canSend = input.trim() && !isBusy;
 
   return (
     <>
-      {/* ── Chat Panel ─────────────────────────────────────────────────── */}
+      {/* ── Panel ─────────────────────────────────────────────────────── */}
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            key="chat-panel"
-            initial={{ opacity: 0, scale: 0.88, y: 24, originX: 1, originY: 1 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.88, y: 24 }}
-            transition={{ type: 'spring', stiffness: 420, damping: 32 }}
-            className="fixed bottom-24 right-5 z-50 flex flex-col overflow-hidden"
+            key="panel"
+            initial={{ opacity: 0, y: 20, scale: 0.94 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 20, scale: 0.94 }}
+            transition={{ type: 'spring', stiffness: 380, damping: 30 }}
             style={{
-              width: '400px',
-              maxWidth: 'calc(100vw - 1.5rem)',
-              height: '620px',
-              maxHeight: 'calc(100dvh - 7rem)',
-              borderRadius: '22px',
-              background: 'linear-gradient(170deg, #131313 0%, #0b0b0b 100%)',
-              border: '1px solid rgba(201,168,76,0.13)',
-              boxShadow:
-                '0 40px 100px rgba(0,0,0,0.75), 0 0 0 1px rgba(255,255,255,0.04), inset 0 1px 0 rgba(201,168,76,0.07)',
+              position: 'fixed',
+              bottom: 90,
+              right: 20,
+              width: 400,
+              maxWidth: 'calc(100vw - 24px)',
+              height: 600,
+              maxHeight: 'calc(100dvh - 110px)',
+              borderRadius: 24,
+              background: '#FAFAF8',
+              boxShadow: '0 24px 80px rgba(0,0,0,0.18), 0 0 0 1px rgba(0,0,0,0.06)',
+              display: 'flex',
+              flexDirection: 'column',
+              overflow: 'hidden',
+              zIndex: 9999,
             }}
             role="dialog"
             aria-label="Crescent AI Chat"
           >
-            {/* ── Header ─────────────────────────────────────────────── */}
+            {/* Gold top strip */}
             <div
-              className="flex items-center justify-between px-5 py-4 flex-shrink-0"
               style={{
-                background:
-                  'linear-gradient(135deg, #181818 0%, #131313 100%)',
-                borderBottom: '1px solid rgba(255,255,255,0.05)',
+                height: 3,
+                background: 'linear-gradient(90deg, #C9A84C 0%, #F5D78E 50%, #C9A84C 100%)',
+                flexShrink: 0,
+              }}
+            />
+
+            {/* Header */}
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                padding: '16px 20px',
+                background: '#FFFFFF',
+                borderBottom: '1px solid #F0EDE6',
+                flexShrink: 0,
               }}
             >
-              <div className="flex items-center gap-3.5">
-                {/* Icon */}
-                <div className="relative">
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                <div style={{ position: 'relative' }}>
                   <div
-                    className="w-10 h-10 rounded-[13px] flex items-center justify-center"
                     style={{
-                      background:
-                        'linear-gradient(135deg, #C9A84C 0%, #F5D78E 100%)',
-                      boxShadow: '0 4px 18px rgba(201,168,76,0.38)',
+                      width: 42,
+                      height: 42,
+                      borderRadius: 13,
+                      background: 'linear-gradient(135deg, #C9A84C 0%, #E8C56A 100%)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      boxShadow: '0 4px 14px rgba(201,168,76,0.35)',
                     }}
                   >
-                    <Sparkles size={18} className="text-black" />
+                    <Sparkles size={18} color="#fff" />
                   </div>
-                  {/* Online pulse */}
-                  <motion.span
-                    className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-emerald-400 rounded-full border-2"
-                    style={{ borderColor: '#181818' }}
-                    animate={{ scale: [1, 1.25, 1] }}
+                  <motion.div
+                    animate={{ scale: [1, 1.3, 1] }}
                     transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
+                    style={{
+                      position: 'absolute',
+                      bottom: -1,
+                      right: -1,
+                      width: 12,
+                      height: 12,
+                      borderRadius: '50%',
+                      background: '#22C55E',
+                      border: '2px solid #fff',
+                    }}
                   />
                 </div>
 
                 <div>
-                  <p
-                    className="text-white font-semibold text-[13px] tracking-wide"
-                    style={{ letterSpacing: '0.03em' }}
-                  >
+                  <p style={{ margin: 0, fontSize: 14, fontWeight: 600, color: '#0F0F0F', letterSpacing: '-0.01em' }}>
                     Crescent AI
                   </p>
-                  <p className="text-emerald-400 text-[11px] font-medium tracking-wide mt-0.5">
-                    Online · Ready to help
+                  <p style={{ margin: '2px 0 0', fontSize: 11, color: '#22C55E', fontWeight: 500, letterSpacing: '0.01em' }}>
+                    ● Online · Typically replies instantly
                   </p>
                 </div>
               </div>
 
-              {/* Actions */}
-              <div className="flex items-center gap-0.5">
+              <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                 <motion.button
                   onClick={clearChat}
                   disabled={isBusy || messages.length <= 1}
-                  title="Clear conversation"
-                  whileHover={{ scale: 1.05 }}
+                  whileHover={{ scale: 1.05, background: '#F5F0E8' }}
                   whileTap={{ scale: 0.95 }}
-                  className="w-8 h-8 rounded-lg flex items-center justify-center text-white/20 hover:text-white/55 hover:bg-white/5 transition-colors disabled:opacity-0 disabled:pointer-events-none"
+                  title="Clear chat"
+                  style={{
+                    width: 32,
+                    height: 32,
+                    borderRadius: 8,
+                    border: 'none',
+                    background: 'transparent',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    cursor: 'pointer',
+                    opacity: messages.length <= 1 ? 0.3 : 0.5,
+                    transition: 'opacity 0.2s',
+                  }}
                 >
-                  <RotateCcw size={13} />
+                  <RotateCcw size={13} color="#6B6B6B" />
                 </motion.button>
+
                 <motion.button
                   onClick={() => setIsOpen(false)}
-                  title="Close"
-                  whileHover={{ scale: 1.05 }}
+                  whileHover={{ scale: 1.05, background: '#F5F0E8' }}
                   whileTap={{ scale: 0.95 }}
-                  className="w-8 h-8 rounded-lg flex items-center justify-center text-white/20 hover:text-white/55 hover:bg-white/5 transition-colors"
+                  style={{
+                    width: 32,
+                    height: 32,
+                    borderRadius: 8,
+                    border: 'none',
+                    background: 'transparent',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    cursor: 'pointer',
+                  }}
                 >
-                  <X size={15} />
+                  <X size={15} color="#6B6B6B" />
                 </motion.button>
               </div>
             </div>
 
-            {/* ── Messages ───────────────────────────────────────────── */}
+            {/* Messages */}
             <div
-              className="flex-1 overflow-y-auto px-5 py-5 space-y-4 overscroll-contain"
               style={{
-                scrollbarWidth: 'thin',
-                scrollbarColor: 'rgba(255,255,255,0.07) transparent',
+                flex: 1,
+                overflowY: 'auto',
+                padding: '20px 18px 8px',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 6,
+                background: '#FAFAF8',
               }}
+              className="crescent-chat-scroll"
             >
               <AnimatePresence initial={false}>
-                {messages.map((message) => (
+                {messages.map((msg) => (
                   <MessageBubble
-                    key={message.id}
-                    message={message}
-                    isStreaming={message.id === streamingId}
+                    key={msg.id}
+                    message={msg}
+                    isStreaming={msg.id === streamingId}
                   />
                 ))}
               </AnimatePresence>
 
-              {/* Loading state before streaming begins */}
+              {/* Loading dots */}
               <AnimatePresence>
                 {isLoading && (
                   <motion.div
-                    initial={{ opacity: 0, y: 10 }}
+                    initial={{ opacity: 0, y: 8 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0 }}
-                    className="flex gap-2.5"
+                    style={{ display: 'flex', alignItems: 'flex-end', gap: 10 }}
                   >
                     <div
-                      className="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0"
                       style={{
-                        background: 'linear-gradient(135deg, #C9A84C, #F5D78E)',
-                        boxShadow: '0 2px 10px rgba(201,168,76,0.3)',
+                        width: 30,
+                        height: 30,
+                        borderRadius: '50%',
+                        background: 'linear-gradient(135deg, #C9A84C, #E8C56A)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        boxShadow: '0 3px 12px rgba(201,168,76,0.35)',
+                        flexShrink: 0,
                       }}
                     >
-                      <Sparkles size={11} className="text-black" />
+                      <Sparkles size={13} color="#fff" />
                     </div>
                     <div
-                      className="rounded-2xl rounded-bl-sm px-4 py-3"
                       style={{
-                        background:
-                          'linear-gradient(135deg, rgba(201,168,76,0.09), rgba(245,215,142,0.05))',
-                        border: '1px solid rgba(201,168,76,0.15)',
+                        padding: '12px 16px',
+                        borderRadius: '4px 18px 18px 18px',
+                        background: '#FFFFFF',
+                        border: '1px solid #F0EDE6',
+                        boxShadow: '0 2px 12px rgba(0,0,0,0.07)',
                       }}
                     >
-                      <TypingIndicator />
+                      <TypingDots />
                     </div>
                   </motion.div>
                 )}
@@ -425,17 +468,22 @@ export default function ChatBot() {
               <AnimatePresence>
                 {error && (
                   <motion.div
-                    initial={{ opacity: 0, y: 8 }}
+                    initial={{ opacity: 0, y: 6 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0 }}
-                    className="flex items-start gap-2.5 rounded-xl px-4 py-3 text-[13px]"
                     style={{
-                      background: 'rgba(239,68,68,0.07)',
-                      border: '1px solid rgba(239,68,68,0.14)',
-                      color: 'rgba(252,165,165,0.85)',
+                      padding: '10px 14px',
+                      borderRadius: 12,
+                      background: '#FEF2F2',
+                      border: '1px solid #FECACA',
+                      color: '#991B1B',
+                      fontSize: 13,
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 8,
                     }}
                   >
-                    <span className="mt-px">⚠</span>
+                    <span>⚠</span>
                     <span>{error}</span>
                   </motion.div>
                 )}
@@ -444,33 +492,41 @@ export default function ChatBot() {
               <div ref={messagesEndRef} />
             </div>
 
-            {/* ── Quick Suggestions ──────────────────────────────────── */}
+            {/* Suggestions */}
             <AnimatePresence>
               {showSuggestions && (
                 <motion.div
-                  initial={{ opacity: 0, y: 6 }}
+                  initial={{ opacity: 0, y: 8 }}
                   animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 6 }}
-                  className="px-5 pb-3 flex flex-wrap gap-2"
+                  exit={{ opacity: 0 }}
+                  style={{
+                    padding: '8px 18px 12px',
+                    display: 'flex',
+                    flexWrap: 'wrap',
+                    gap: 8,
+                    background: '#FAFAF8',
+                  }}
                 >
                   {QUICK_SUGGESTIONS.map((s, i) => (
                     <motion.button
                       key={s}
                       initial={{ opacity: 0, y: 6 }}
                       animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.08 + i * 0.07 }}
+                      transition={{ delay: 0.05 + i * 0.07 }}
                       onClick={() => sendMessage(s)}
-                      whileHover={{
-                        borderColor: 'rgba(201,168,76,0.38)',
-                        background: 'rgba(201,168,76,0.06)',
-                        color: 'rgba(255,255,255,0.8)',
-                      }}
+                      whileHover={{ scale: 1.02, background: '#F5EDD6', borderColor: '#C9A84C' }}
                       whileTap={{ scale: 0.97 }}
-                      className="text-[11px] px-3 py-1.5 rounded-full transition-colors"
                       style={{
-                        border: '1px solid rgba(255,255,255,0.08)',
-                        background: 'rgba(255,255,255,0.02)',
-                        color: 'rgba(255,255,255,0.4)',
+                        padding: '7px 13px',
+                        borderRadius: 20,
+                        border: '1px solid #E8DFC8',
+                        background: '#FDF8EF',
+                        color: '#8B6914',
+                        fontSize: 12,
+                        fontWeight: 500,
+                        cursor: 'pointer',
+                        transition: 'all 0.15s ease',
+                        letterSpacing: '0.01em',
                       }}
                     >
                       {s}
@@ -480,25 +536,31 @@ export default function ChatBot() {
               )}
             </AnimatePresence>
 
-            {/* ── Input Bar ──────────────────────────────────────────── */}
+            {/* Input */}
             <div
-              className="px-4 pb-4 pt-3 flex-shrink-0"
-              style={{ borderTop: '1px solid rgba(255,255,255,0.05)' }}
+              style={{
+                padding: '12px 16px 16px',
+                background: '#FFFFFF',
+                borderTop: '1px solid #F0EDE6',
+                flexShrink: 0,
+              }}
             >
               <motion.div
                 animate={{
-                  borderColor: inputFocused
-                    ? 'rgba(201,168,76,0.28)'
-                    : 'rgba(255,255,255,0.07)',
+                  borderColor: inputFocused ? '#C9A84C' : '#EDE8DC',
                   boxShadow: inputFocused
-                    ? '0 0 0 3px rgba(201,168,76,0.07)'
+                    ? '0 0 0 3px rgba(201,168,76,0.12)'
                     : '0 0 0 0px rgba(201,168,76,0)',
                 }}
-                transition={{ duration: 0.2 }}
-                className="flex items-end gap-3 rounded-xl px-4 py-3"
+                transition={{ duration: 0.18 }}
                 style={{
-                  background: 'rgba(255,255,255,0.03)',
-                  border: '1px solid rgba(255,255,255,0.07)',
+                  display: 'flex',
+                  alignItems: 'flex-end',
+                  gap: 10,
+                  padding: '10px 12px 10px 16px',
+                  borderRadius: 16,
+                  background: '#F9F7F3',
+                  border: '1.5px solid #EDE8DC',
                 }}
               >
                 <textarea
@@ -511,42 +573,64 @@ export default function ChatBot() {
                   placeholder="Ask about our services…"
                   rows={1}
                   disabled={isBusy}
-                  className="flex-1 bg-transparent text-sm text-white/85 placeholder-white/20 resize-none outline-none leading-relaxed min-h-[22px] max-h-[120px] disabled:opacity-40"
-                  style={{ scrollbarWidth: 'none' }}
+                  style={{
+                    flex: 1,
+                    background: 'transparent',
+                    border: 'none',
+                    outline: 'none',
+                    resize: 'none',
+                    fontSize: 14,
+                    lineHeight: 1.55,
+                    color: '#1A1A1A',
+                    minHeight: 22,
+                    maxHeight: 110,
+                    fontFamily: 'inherit',
+                    opacity: isBusy ? 0.5 : 1,
+                  }}
                   aria-label="Type your message"
                 />
 
                 <motion.button
                   onClick={() => sendMessage()}
                   disabled={!canSend}
-                  whileHover={canSend ? { scale: 1.07 } : {}}
-                  whileTap={canSend ? { scale: 0.92 } : {}}
-                  className="flex-shrink-0 w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-200 disabled:cursor-not-allowed"
+                  whileHover={canSend ? { scale: 1.06 } : {}}
+                  whileTap={canSend ? { scale: 0.93 } : {}}
                   style={{
+                    width: 36,
+                    height: 36,
+                    borderRadius: 11,
+                    border: 'none',
                     background: canSend
-                      ? 'linear-gradient(135deg, #C9A84C 0%, #F5D78E 100%)'
-                      : 'rgba(255,255,255,0.05)',
-                    boxShadow: canSend
-                      ? '0 4px 16px rgba(201,168,76,0.35)'
-                      : 'none',
-                    opacity: canSend ? 1 : 0.35,
+                      ? 'linear-gradient(135deg, #C9A84C 0%, #E8C56A 100%)'
+                      : '#F0EDE6',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    cursor: canSend ? 'pointer' : 'not-allowed',
+                    flexShrink: 0,
+                    boxShadow: canSend ? '0 4px 14px rgba(201,168,76,0.4)' : 'none',
+                    transition: 'background 0.2s, box-shadow 0.2s',
                   }}
                   aria-label="Send message"
                 >
                   {isBusy ? (
-                    <Loader2 size={14} className="text-black animate-spin" />
+                    <Loader2 size={15} color={canSend ? '#fff' : '#B0A898'} className="animate-spin" />
                   ) : (
-                    <Send
-                      size={14}
-                      className={canSend ? 'text-black' : 'text-white/30'}
-                    />
+                    <Send size={15} color={canSend ? '#fff' : '#B0A898'} />
                   )}
                 </motion.button>
               </motion.div>
 
               <p
-                className="text-center text-[10px] mt-2.5 tracking-[0.12em] uppercase"
-                style={{ color: 'rgba(255,255,255,0.1)' }}
+                style={{
+                  textAlign: 'center',
+                  fontSize: 10,
+                  color: '#C4B89A',
+                  marginTop: 10,
+                  letterSpacing: '0.1em',
+                  textTransform: 'uppercase',
+                  fontWeight: 500,
+                }}
               >
                 Crescent AI · Powered by GPT-4o mini
               </p>
@@ -555,110 +639,110 @@ export default function ChatBot() {
         )}
       </AnimatePresence>
 
-      {/* ── Floating Button ────────────────────────────────────────────── */}
-      <div className="fixed bottom-5 right-5 z-50">
-        {/* Ambient pulse ring — only when closed */}
+      {/* Floating Button */}
+      <div style={{ position: 'fixed', bottom: 24, right: 24, zIndex: 9999 }}>
         <AnimatePresence>
           {!isOpen && (
             <motion.div
               key="pulse"
-              className="absolute inset-0 rounded-full pointer-events-none"
               style={{
-                background: 'linear-gradient(135deg, #C9A84C, #F5D78E)',
+                position: 'absolute',
+                inset: 0,
+                borderRadius: '50%',
+                background: 'linear-gradient(135deg, #C9A84C, #E8C56A)',
+                zIndex: -1,
               }}
-              animate={{
-                scale: [1, 1.65, 1.65],
-                opacity: [0.45, 0, 0],
-              }}
-              transition={{
-                duration: 2.2,
-                repeat: Infinity,
-                repeatDelay: 1.2,
-                ease: 'easeOut',
-              }}
+              animate={{ scale: [1, 1.7], opacity: [0.5, 0] }}
+              transition={{ duration: 2, repeat: Infinity, repeatDelay: 1, ease: 'easeOut' }}
             />
           )}
         </AnimatePresence>
 
         <motion.button
           onClick={() => setIsOpen(!isOpen)}
-          whileHover={{ scale: 1.09 }}
-          whileTap={{ scale: 0.92 }}
-          className="relative w-14 h-14 rounded-full flex items-center justify-center focus:outline-none"
+          whileHover={{ scale: 1.08 }}
+          whileTap={{ scale: 0.91 }}
           style={{
+            width: 56,
+            height: 56,
+            borderRadius: '50%',
+            border: 'none',
             background: isOpen
-              ? 'rgba(18,18,18,0.96)'
-              : 'linear-gradient(135deg, #C9A84C 0%, #F5D78E 100%)',
-            border: isOpen
-              ? '1px solid rgba(255,255,255,0.1)'
-              : '1px solid rgba(201,168,76,0.2)',
+              ? '#1A1A1A'
+              : 'linear-gradient(135deg, #C9A84C 0%, #E8C56A 100%)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            cursor: 'pointer',
             boxShadow: isOpen
-              ? '0 8px 28px rgba(0,0,0,0.5)'
-              : '0 8px 36px rgba(201,168,76,0.5)',
+              ? '0 8px 30px rgba(0,0,0,0.35)'
+              : '0 8px 30px rgba(201,168,76,0.55)',
+            position: 'relative',
           }}
           aria-label={isOpen ? 'Close chat' : 'Chat with Crescent AI'}
         >
-          {/* Icon transition */}
           <AnimatePresence mode="wait">
             {isOpen ? (
               <motion.span
-                key="close"
-                initial={{ rotate: -80, opacity: 0, scale: 0.6 }}
+                key="x"
+                initial={{ rotate: -70, opacity: 0, scale: 0.5 }}
                 animate={{ rotate: 0, opacity: 1, scale: 1 }}
-                exit={{ rotate: 80, opacity: 0, scale: 0.6 }}
-                transition={{ duration: 0.18, ease: 'easeOut' }}
+                exit={{ rotate: 70, opacity: 0, scale: 0.5 }}
+                transition={{ duration: 0.17 }}
               >
-                <X size={20} className="text-white" />
+                <X size={21} color="#fff" />
               </motion.span>
             ) : (
               <motion.span
-                key="open"
-                initial={{ rotate: 80, opacity: 0, scale: 0.6 }}
+                key="chat"
+                initial={{ rotate: 70, opacity: 0, scale: 0.5 }}
                 animate={{ rotate: 0, opacity: 1, scale: 1 }}
-                exit={{ rotate: -80, opacity: 0, scale: 0.6 }}
-                transition={{ duration: 0.18, ease: 'easeOut' }}
+                exit={{ rotate: -70, opacity: 0, scale: 0.5 }}
+                transition={{ duration: 0.17 }}
               >
-                <MessageCircle size={20} className="text-black" />
+                <MessageCircle size={21} color="#fff" />
               </motion.span>
             )}
           </AnimatePresence>
 
-          {/* Unread badge */}
           <AnimatePresence>
             {hasUnread && !isOpen && (
-              <motion.span
-                initial={{ scale: 0, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                exit={{ scale: 0, opacity: 0 }}
-                transition={{ type: 'spring', stiffness: 500, damping: 28 }}
-                className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full flex items-center justify-center text-white font-bold"
+              <motion.div
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                exit={{ scale: 0 }}
+                transition={{ type: 'spring', stiffness: 500, damping: 25 }}
                 style={{
-                  fontSize: '9px',
-                  border: '2px solid #0a0a0a',
+                  position: 'absolute',
+                  top: -3,
+                  right: -3,
+                  width: 16,
+                  height: 16,
+                  borderRadius: '50%',
+                  background: '#EF4444',
+                  border: '2px solid #fff',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: 9,
+                  fontWeight: 700,
+                  color: '#fff',
                 }}
               >
                 1
-              </motion.span>
+              </motion.div>
             )}
           </AnimatePresence>
         </motion.button>
       </div>
 
-      {/* Webkit scrollbar styles */}
       <style jsx global>{`
-        [role='dialog'] ::-webkit-scrollbar {
-          width: 3px;
-        }
-        [role='dialog'] ::-webkit-scrollbar-track {
-          background: transparent;
-        }
-        [role='dialog'] ::-webkit-scrollbar-thumb {
-          background: rgba(255, 255, 255, 0.08);
-          border-radius: 10px;
-        }
-        [role='dialog'] ::-webkit-scrollbar-thumb:hover {
-          background: rgba(255, 255, 255, 0.15);
-        }
+        .crescent-chat-scroll::-webkit-scrollbar { width: 4px; }
+        .crescent-chat-scroll::-webkit-scrollbar-track { background: transparent; }
+        .crescent-chat-scroll::-webkit-scrollbar-thumb { background: #E8DFC8; border-radius: 4px; }
+        .crescent-chat-scroll::-webkit-scrollbar-thumb:hover { background: #C9A84C; }
+        .animate-spin { animation: spin 1s linear infinite; }
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
       `}</style>
     </>
   );
